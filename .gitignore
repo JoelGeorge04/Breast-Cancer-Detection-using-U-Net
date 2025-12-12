@@ -4,3 +4,4 @@ dataset_masks
 dataset_split
 checkpoint
 test-GPU.py
+__pycache__
