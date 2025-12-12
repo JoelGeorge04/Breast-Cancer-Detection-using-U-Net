@@ -1,29 +1,66 @@
 import torch
 import torch.nn as nn
 
-def double_conv(in_c, out_c):
-    return nn.Sequential(
-        nn.Conv2d(in_c, out_c, 3, padding=1), nn.ReLU(),
-        nn.Conv2d(out_c, out_c, 3, padding=1), nn.ReLU()
-    )
+class DoubleConv(nn.Module):
+    def __init__(self, in_c, out_c):
+        super().__init__()
+        self.net = nn.Sequential(
+            nn.Conv2d(in_c, out_c, 3, padding=1),
+            nn.ReLU(inplace=True),
+            nn.Conv2d(out_c, out_c, 3, padding=1),
+            nn.ReLU(inplace=True),
+        )
+    def forward(self, x):
+        return self.net(x)
 
-def build_unet():
-    model = nn.Sequential()
-    # this is only a partial unet but simple enough
-    model.down1 = double_conv(3, 64)
-    model.pool1 = nn.MaxPool2d(2)
+class UNet(nn.Module):
+    def __init__(self):
+        super().__init__()
 
-    model.down2 = double_conv(64, 128)
-    model.pool2 = nn.MaxPool2d(2)
+        self.down1 = DoubleConv(3, 64)
+        self.pool1 = nn.MaxPool2d(2)
 
-    model.bridge = double_conv(128, 256)
+        self.down2 = DoubleConv(64, 128)
+        self.pool2 = nn.MaxPool2d(2)
 
-    model.up1_trans = nn.ConvTranspose2d(256, 128, 2, stride=2)
-    model.up1 = double_conv(256, 128)
+        self.down3 = DoubleConv(128, 256)
+        self.pool3 = nn.MaxPool2d(2)
 
-    model.up2_trans = nn.ConvTranspose2d(128, 64, 2, stride=2)
-    model.up2 = double_conv(128, 64)
+        self.bottleneck = DoubleConv(256, 512)
 
-    model.final = nn.Conv2d(64, 1, 1)
+        self.up3 = nn.ConvTranspose2d(512, 256, 2, stride=2)
+        self.conv3 = DoubleConv(512, 256)
 
-    return model
+        self.up2 = nn.ConvTranspose2d(256, 128, 2, stride=2)
+        self.conv2 = DoubleConv(256, 128)
+
+        self.up1 = nn.ConvTranspose2d(128, 64, 2, stride=2)
+        self.conv1 = DoubleConv(128, 64)
+
+        self.final = nn.Conv2d(64, 1, 1)
+
+    def forward(self, x):
+        d1 = self.down1(x)
+        p1 = self.pool1(d1)
+
+        d2 = self.down2(p1)
+        p2 = self.pool2(d2)
+
+        d3 = self.down3(p2)
+        p3 = self.pool3(d3)
+
+        bn = self.bottleneck(p3)
+
+        u3 = self.up3(bn)
+        u3 = torch.cat([u3, d3], dim=1)
+        u3 = self.conv3(u3)
+
+        u2 = self.up2(u3)
+        u2 = torch.cat([u2, d2], dim=1)
+        u2 = self.conv2(u2)
+
+        u1 = self.up1(u2)
+        u1 = torch.cat([u1, d1], dim=1)
+        u1 = self.conv1(u1)
+
+        return self.final(u1)
