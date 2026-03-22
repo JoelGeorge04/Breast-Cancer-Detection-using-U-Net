@@ -52,7 +52,7 @@ class UNet(nn.Module):
         bn = self.bottleneck(p3)
 
         u3 = self.up3(bn)
-        u3 = torch.cat([u3, d3], dim=1)
+        u3 = torch.cat([u3, d3], dim=1) # skip connection
         u3 = self.conv3(u3)
 
         u2 = self.up2(u3)
@@ -64,3 +64,25 @@ class UNet(nn.Module):
         u1 = self.conv1(u1)
 
         return self.final(u1)
+    
+
+    
+
+# import torch
+# import torch.nn as nn
+
+# class SimpleCNN(nn.Module):
+#     def __init__(self):
+#         super(SimpleCNN, self).__init__()
+
+#         self.conv1 = nn.Conv2d(3, 16, kernel_size=3, padding=1)
+#         self.conv2 = nn.Conv2d(16, 32, kernel_size=3, padding=1)
+#         self.conv3 = nn.Conv2d(32, 1, kernel_size=1)
+
+#         self.relu = nn.ReLU()
+
+#     def forward(self, x):
+#         x = self.relu(self.conv1(x))
+#         x = self.relu(self.conv2(x))
+#         x = self.conv3(x)   
+#         return x

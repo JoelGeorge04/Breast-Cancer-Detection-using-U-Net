@@ -4,7 +4,7 @@ import random
 
 DATASET = "final_dataset"
 OUTPUT = "dataset_split"
-SPLIT = [0.7, 0.2, 0.1]  # train(70), val(20), test(10)
+SPLIT = [0.7, 0.2, 0.1]  
 
 def ensure(path):
     if not os.path.exists(path):

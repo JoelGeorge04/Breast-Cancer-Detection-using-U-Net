@@ -39,3 +39,37 @@ def predict(image_path, model_path="unet_model.pth"):
 
 if __name__ == "__main__":
     predict("sample_test_image.png")
+
+
+# import cv2
+# import numpy as np
+# import torch
+# from model import SimpleCNN
+
+# def predict(image_path, model_path="simple_cnn_model.pth"):
+#     img = cv2.imread(image_path)
+#     if img is None:
+#         print("Image not found:", image_path)
+#         return
+
+#     img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+#     img = cv2.resize(img, (256, 256))
+#     img = img.astype("float32") / 255.0
+#     img = np.transpose(img, (2, 0, 1))
+#     img_tensor = torch.tensor(img).unsqueeze(0)
+
+#     model = SimpleCNN()
+#     model.load_state_dict(torch.load(model_path, weights_only=True))
+#     model.eval()
+
+#     with torch.no_grad():
+#         pred = model(img_tensor)
+#         pred = torch.sigmoid(pred)
+#         pred = pred[0, 0].numpy()
+
+#     mask = (pred > 0.5).astype("uint8") * 255
+#     cv2.imwrite("prediction_mask.png", mask)
+#     print("Prediction saved as prediction_mask.png")
+
+# if __name__ == "__main__":
+#     predict("sample_test_image.png")
