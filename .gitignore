@@ -1,7 +1,27 @@
-dataset
-final_dataset
-dataset_masks
-dataset_split
-checkpoint
+dataset/
+final_dataset/
+dataset_masks/
+dataset_split/
+checkpoint/
+unnecessary/
+
+# Local environments and caches
+.venv/
+.venv-1/
+.venv_py310/
+__pycache__/
+*.pyc
+
+# Model checkpoints and weights
+*.pth
+*.pt
+*.ckpt
+
+# Generated preview artifacts
+prediction_mask.png
+sampleimage.png
+sample_test_image.png
+modelArc.png
+
+# Local helper script
 test-GPU.py
-__pycache__
